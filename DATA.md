@@ -26,14 +26,14 @@ We preprocess videos/images to lower FPS and dimension to reduce storage and to 
 fps=2
 size=224
 file_type=video
-input_root=/path/to/webvid_videos
-input_file_list_path=/path/to/webvid_video_names.txt
+input_root=data/vid_promp_videos
+input_file_list_path=data/video_filenames.txt
 # you may use `ls -U ${input_root} > ${input_file_list_path}` to efficiently generate the file above.
-output_root=/path/to/processed_webvid_videos
+output_root=data/processed_vid_promp_videos
 python preprocess/compress.py \
---input_root=${input_root} --output_root=${output_root} \
---input_file_list_path=${input_file_list_path} \
---fps=${fps} --size=${size} --file_type=${file_type} --num_workers 24 
+--input_root=data/vid_promp_videos --output_root=data/processed_vid_promp_videos \
+--input_file_list_path=data/video_filenames.txt \
+--fps=4 --size=224 --file_type=video --num_workers 24 
 ```
 Note that the audio is also removed from the video files, you need edit the file [preprocess/compress.py](preprocess/compress.py) to keep it. For images, you may use
 ```bash

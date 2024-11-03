@@ -9,6 +9,7 @@
 #SBATCH --mem=500G
 
 # can add MASTER_PORT to control port for distributed training
+SL_EXP_DIR=ckpts_and_logs
 exp_name=$1  # note we added ${corpus} prefix automatically
 corpus=$2  # coco_vg, 4m, ...
 exp_dir=${SL_EXP_DIR}
@@ -17,7 +18,8 @@ mode=$4
 
 if [[ ${corpus} != "coco_vg" ]] && [[ ${corpus} != "coco" ]] && \
   [[ ${corpus} != "webvid_cc3m" ]] && [[ ${corpus} != "cc3m" ]] && \
-  [[ ${corpus} != "webvid" ]] && [[ ${corpus} != "webvid_14m" ]]; then
+  [[ ${corpus} != "webvid" ]] && [[ ${corpus} != "webvid_14m" ]] && 
+  [[ ${corpus} != "vid_promp" ]]; then
 	echo "Does not support corpus ${corpus}"
 	exit 1
 fi
@@ -32,18 +34,18 @@ config_path=./configs/pretrain.yaml
 echo "output dir >> ${output_dir}"
 
 ### save code copy 
-project_dir=$PWD
-if [ -d ${output_dir} ]; then
-	echo "Dir ${output_dir} already exist. Exit."
-	exit 1
-fi
-mkdir -p ${output_dir}
-cd .. 
-code_dir=${output_dir}/code
-project_dirname=singularity
-rsync -ar ${project_dirname} ${code_dir} --exclude='*.out'  # --exclude='.git'
-cd ${code_dir}/${project_dirname}
-echo "Copied source files to '${PWD}' and launch from this dir"
+# project_dir=$PWD
+# if [ -d ${output_dir} ]; then
+# 	echo "Dir ${output_dir} already exist. Exit."
+# 	exit 1
+# fi
+# mkdir -p ${output_dir}
+# cd .. 
+# code_dir=${output_dir}/code
+# project_dirname=singularity
+# rsync -ar ${project_dirname} ${code_dir} --exclude='*.out'  # --exclude='.git'
+# cd ${code_dir}/${project_dirname}
+# echo "Copied source files to '${PWD}' and launch from this dir"
 
 ############### ======> Your training scripts [START]
 if [[ ${mode} == "slurm" ]]; then
@@ -73,7 +75,7 @@ if [[ ${mode} == "slurm" ]]; then
   output_dir=${output_dir} \
   train_corpus=${corpus} \
   wandb.project=sb_pt_${corpus} \
-  wandb.enable=True \
+  wandb.enable=False \
 	dist_url=${dist_url} \
 	${@:5}
 elif [[ ${mode} == "local" ]]; then
@@ -91,7 +93,7 @@ elif [[ ${mode} == "local" ]]; then
   output_dir=${output_dir} \
   train_corpus=${corpus} \
   wandb.project=sb_pt_${corpus} \
-  wandb.enable=True \
+  wandb.enable=False \
   ${@:5}
 else
 	echo "mode expects one of [local, slurm], got ${mode}."
